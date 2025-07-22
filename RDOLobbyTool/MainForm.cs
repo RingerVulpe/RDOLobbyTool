@@ -95,7 +95,7 @@ namespace FileTool
             updateBtn.Click += UpdateBtn_Click;
 
             var toolTip = new ToolTip();
-            toolTip.SetToolTip(addBtn, "Copy the template file to the target folder.");
+            toolTip.SetToolTip(addBtn, "Add the template file to the target folder.");
             toolTip.SetToolTip(remBtn, "Remove the template file from the target folder.");
             toolTip.SetToolTip(horseBtn, "Play a horse neigh sound effect.");
             toolTip.SetToolTip(updateBtn, "Check for and install available updates.");
