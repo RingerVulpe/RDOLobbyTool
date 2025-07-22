@@ -33,12 +33,11 @@ namespace FileTool
         private void InitializeComponent()
         {
             Text = "RDO Lobby Tool";
-            ClientSize = new System.Drawing.Size(340, 240); // 16:11 aspect ratio, adjust as needed
+            ClientSize = new System.Drawing.Size(340, 240);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
             StartPosition = FormStartPosition.CenterScreen;
 
-            // Main action buttons
             int buttonWidth = 180;
             int buttonHeight = 36;
             int leftMargin = (ClientSize.Width - buttonWidth) / 2;
@@ -66,7 +65,6 @@ namespace FileTool
             };
             horseBtn.Click += HorseBtn_Click;
 
-            // Update button: small, bottom right
             var updateBtn = new Button {
                 Text = "Check for Updates",
                 Size = new System.Drawing.Size(120, 28),
@@ -74,6 +72,13 @@ namespace FileTool
                 Anchor = AnchorStyles.Bottom | AnchorStyles.Right
             };
             updateBtn.Click += UpdateBtn_Click;
+
+            // ToolTip setup
+            var toolTip = new ToolTip();
+            toolTip.SetToolTip(addBtn, "Copy the template file to the target folder.");
+            toolTip.SetToolTip(remBtn, "Remove the template file from the target folder.");
+            toolTip.SetToolTip(horseBtn, "Play a horse neigh sound effect.");
+            toolTip.SetToolTip(updateBtn, "Check for and install available updates.");
 
             Controls.Add(addBtn);
             Controls.Add(remBtn);
