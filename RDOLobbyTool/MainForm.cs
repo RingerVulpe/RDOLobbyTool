@@ -5,7 +5,7 @@ using System.Media;
 using System.Net.Http;
 using System.Reflection;
 using System.Windows.Forms;
-using System.Diagnostics;  
+using System.Diagnostics;
 
 namespace FileTool
 {
@@ -27,7 +27,24 @@ namespace FileTool
                 this.Icon = new Icon(iconPath);
             }
 
-            CheckForUpdates(); // <-- Add this line
+            CheckForUpdates();
+        }
+
+        private void LaunchUpdaterAndQuit()
+        {
+            int myPid = Process.GetCurrentProcess().Id;
+            string script = Path.Combine(AppContext.BaseDirectory, "update.ps1");
+
+            var psi = new ProcessStartInfo
+            {
+                FileName = "powershell",
+                Arguments = $"-ExecutionPolicy Bypass -File \"{script}\" -installDir \"{AppContext.BaseDirectory}\" -pid {myPid}",
+                WorkingDirectory = AppContext.BaseDirectory,
+                UseShellExecute = true
+            };
+
+            Process.Start(psi);
+            Application.Exit();
         }
 
         private void InitializeComponent()
@@ -44,28 +61,32 @@ namespace FileTool
             int topMargin = 30;
             int verticalSpacing = 12;
 
-            var addBtn = new Button {
+            var addBtn = new Button
+            {
                 Text = "Add File",
                 Location = new System.Drawing.Point(leftMargin, topMargin),
                 Size = new System.Drawing.Size(buttonWidth, buttonHeight)
             };
             addBtn.Click += AddBtn_Click;
 
-            var remBtn = new Button {
+            var remBtn = new Button
+            {
                 Text = "Remove File",
                 Location = new System.Drawing.Point(leftMargin, topMargin + (buttonHeight + verticalSpacing) * 1),
                 Size = new System.Drawing.Size(buttonWidth, buttonHeight)
             };
             remBtn.Click += RemBtn_Click;
 
-            var horseBtn = new Button {
+            var horseBtn = new Button
+            {
                 Text = "Horse Neigh",
                 Location = new System.Drawing.Point(leftMargin, topMargin + (buttonHeight + verticalSpacing) * 2),
                 Size = new System.Drawing.Size(buttonWidth, buttonHeight)
             };
             horseBtn.Click += HorseBtn_Click;
 
-            var updateBtn = new Button {
+            var updateBtn = new Button
+            {
                 Text = "Check for Updates",
                 Size = new System.Drawing.Size(120, 28),
                 Location = new System.Drawing.Point(ClientSize.Width - 120 - 16, ClientSize.Height - 28 - 16),
@@ -73,7 +94,6 @@ namespace FileTool
             };
             updateBtn.Click += UpdateBtn_Click;
 
-            // ToolTip setup
             var toolTip = new ToolTip();
             toolTip.SetToolTip(addBtn, "Copy the template file to the target folder.");
             toolTip.SetToolTip(remBtn, "Remove the template file from the target folder.");
@@ -94,11 +114,11 @@ namespace FileTool
                 try
                 {
                     BackgroundImage = Image.FromFile(imagePath);
-                    BackgroundImageLayout = ImageLayout.Stretch; // Fills the form, no borders
+                    BackgroundImageLayout = ImageLayout.Stretch;
                 }
                 catch
                 {
-                    // Optionally handle image load errors
+                    // ignore
                 }
             }
         }
@@ -106,30 +126,17 @@ namespace FileTool
         private void AddBtn_Click(object sender, EventArgs e)
         {
             var source = Path.Combine(AppContext.BaseDirectory, "Templates", FileName);
-            var dest   = Path.Combine(_targetFolder, FileName);
+            var dest = Path.Combine(_targetFolder, FileName);
 
             try
             {
                 File.Copy(source, dest, true);
-                MessageBox.Show($"Copied to:\n{dest}", "Success",
-                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"Copied to:\n{dest}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error:\n{ex.Message}", "Error",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-        private void UpdateBtn_Click(object sender, EventArgs e)
-        {
-            var ps = new ProcessStartInfo
-            {
-                FileName = "powershell",
-                Arguments = "-ExecutionPolicy Bypass -File update.ps1",
-                WorkingDirectory = AppContext.BaseDirectory,
-                UseShellExecute = false
-            };
-            Process.Start(ps);
         }
 
         private void RemBtn_Click(object sender, EventArgs e)
@@ -138,13 +145,11 @@ namespace FileTool
             if (File.Exists(target))
             {
                 File.Delete(target);
-                MessageBox.Show("File deleted", "Success",
-                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("File deleted", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
-                MessageBox.Show("File not found", "Oops",
-                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("File not found", "Oops", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -160,30 +165,30 @@ namespace FileTool
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Could not play sound:\n{ex.Message}", "Error",
-                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"Could not play sound:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             else
             {
-                MessageBox.Show("horse.wav not found in the sound folder.", "Error",
-                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("horse.wav not found in the sound folder.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
+        }
+
+        private void UpdateBtn_Click(object sender, EventArgs e)
+        {
+            LaunchUpdaterAndQuit();
         }
 
         private async void CheckForUpdates()
         {
-            string? latestVersion = null;
-
+            string latestVersion = null;
             try
             {
                 using var http = new HttpClient();
-                latestVersion = await http.GetStringAsync(VersionFileName);
-                latestVersion = latestVersion.Trim();
+                latestVersion = (await http.GetStringAsync(VersionFileName)).Trim();
             }
             catch
             {
-                // Optionally handle network errors
                 return;
             }
 
@@ -191,14 +196,16 @@ namespace FileTool
 
             if (!string.IsNullOrEmpty(latestVersion) && latestVersion != currentVersion)
             {
-                MessageBox.Show(
-                    $"A new version ({latestVersion}) is available!\nYou are running {currentVersion}.",
+                var result = MessageBox.Show(
+                    $"A new version ({latestVersion}) is available!\nYou are running {currentVersion}.\n\nUpdate now?",
                     "Update Available",
-                    MessageBoxButtons.OK,
+                    MessageBoxButtons.YesNo,
                     MessageBoxIcon.Information
                 );
-                // Optionally, offer to download or open a URL
+                if (result == DialogResult.Yes)
+                    LaunchUpdaterAndQuit();
             }
         }
+
     }
 }

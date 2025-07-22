@@ -1,14 +1,24 @@
 <#
 .SYNOPSIS
   Fetches the newest `vX.Y.Z-beta` release ZIP from GitHub,
-  extracts it, and overwrites the current install.
+  waits for the running app to quit, then extracts it over the install.
 #>
 
 param(
     [string]$repoOwner = "RingerVulpe",
     [string]$repoName  = "RDOLobbyTool",
-    [string]$installDir= (Split-Path -Parent $MyInvocation.MyCommand.Path)
+    [string]$installDir= (Split-Path -Parent $MyInvocation.MyCommand.Path),
+    [int]   $pid       = $null
 )
+
+# If we got a PID, wait for that process to die
+if ($pid) {
+    Write-Host "Waiting for process $pid to exit..."
+    while (Get-Process -Id $pid -ErrorAction SilentlyContinue) {
+        Start-Sleep -Milliseconds 200
+    }
+    Write-Host "Process exited. Proceeding with update."
+}
 
 $apiUrl = "https://api.github.com/repos/$repoOwner/$repoName/releases"
 $headers = @{ 'User-Agent' = 'RDOL-Update-Script' }
@@ -26,8 +36,8 @@ if (-not $betaReleases) {
     exit 1
 }
 
-$latest = $betaReleases[0]
-$tag    = $latest.tag_name
+$latest   = $betaReleases[0]
+$tag      = $latest.tag_name
 Write-Host "→ Latest beta tag: $tag"
 
 # grab the .zip asset
@@ -41,21 +51,21 @@ $downloadUrl = $zipAsset.browser_download_url
 $tempZip     = Join-Path $env:TEMP "$repoName-$tag.zip"
 $tempDir     = Join-Path $env:TEMP "$repoName-$tag"
 
-Write-Host "→ Downloading $($zipAsset.name) …"
+Write-Host "→ Downloading $($zipAsset.name)…"
 Invoke-WebRequest -Uri $downloadUrl -OutFile $tempZip -Headers $headers
 
-Write-Host "→ Extracting to $tempDir …"
+Write-Host "→ Extracting to $tempDir…"
 if (Test-Path $tempDir) { Remove-Item $tempDir -Recurse -Force }
 Expand-Archive -Path $tempZip -DestinationPath $tempDir
 
 # source folder is the single subdirectory inside $tempDir
 $src = Get-ChildItem -Path $tempDir | Where-Object PSIsContainer | Select-Object -First 1
 
-Write-Host "→ Mirroring files into $installDir …"
+Write-Host "→ Mirroring files into $installDir…"
 Robocopy $src.FullName $installDir /MIR /NFL /NDL /NJH /NJS
 
 Write-Host "→ Cleaning up…"
-Remove-Item $tempZip      -Force
-Remove-Item $tempDir      -Recurse -Force
+Remove-Item $tempZip -Force
+Remove-Item $tempDir  -Recurse -Force
 
 Write-Host "✅ Update complete! You’re now on $tag."
