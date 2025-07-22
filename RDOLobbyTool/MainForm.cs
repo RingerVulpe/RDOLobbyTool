@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
-using System.Windows.Forms;
 using System.Media;
-using System.Drawing; // Add this for Image
-using System.Net.Http; // Add this at the top
-using System.Reflection; // For getting the current version
+using System.Net.Http;
+using System.Reflection;
+using System.Windows.Forms;
+using System.Diagnostics;  
 
 namespace FileTool
 {
@@ -96,6 +97,17 @@ namespace FileTool
                 MessageBox.Show($"Error:\n{ex.Message}", "Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+        private void UpdateBtn_Click(object sender, EventArgs e)
+        {
+            var ps = new ProcessStartInfo
+            {
+                FileName = "powershell",
+                Arguments = "-ExecutionPolicy Bypass -File update.ps1",
+                WorkingDirectory = AppContext.BaseDirectory,
+                UseShellExecute = false
+            };
+            Process.Start(ps);
         }
 
         private void RemBtn_Click(object sender, EventArgs e)
