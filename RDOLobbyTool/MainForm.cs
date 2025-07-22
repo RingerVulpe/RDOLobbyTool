@@ -33,35 +33,52 @@ namespace FileTool
         private void InitializeComponent()
         {
             Text = "RDO Lobby Tool";
-            ClientSize = new System.Drawing.Size(260, 140);
-            FormBorderStyle = FormBorderStyle.FixedDialog;
+            ClientSize = new System.Drawing.Size(340, 240); // 16:11 aspect ratio, adjust as needed
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
             StartPosition = FormStartPosition.CenterScreen;
 
+            // Main action buttons
+            int buttonWidth = 180;
+            int buttonHeight = 36;
+            int leftMargin = (ClientSize.Width - buttonWidth) / 2;
+            int topMargin = 30;
+            int verticalSpacing = 12;
+
             var addBtn = new Button {
                 Text = "Add File",
-                Location = new System.Drawing.Point(20, 30),
-                Size = new System.Drawing.Size(100, 30)
+                Location = new System.Drawing.Point(leftMargin, topMargin),
+                Size = new System.Drawing.Size(buttonWidth, buttonHeight)
             };
             addBtn.Click += AddBtn_Click;
 
             var remBtn = new Button {
                 Text = "Remove File",
-                Location = new System.Drawing.Point(140, 30),
-                Size = new System.Drawing.Size(100, 30)
+                Location = new System.Drawing.Point(leftMargin, topMargin + (buttonHeight + verticalSpacing) * 1),
+                Size = new System.Drawing.Size(buttonWidth, buttonHeight)
             };
             remBtn.Click += RemBtn_Click;
 
             var horseBtn = new Button {
                 Text = "Horse Neigh",
-                Location = new System.Drawing.Point(20, 80),
-                Size = new System.Drawing.Size(220, 30)
+                Location = new System.Drawing.Point(leftMargin, topMargin + (buttonHeight + verticalSpacing) * 2),
+                Size = new System.Drawing.Size(buttonWidth, buttonHeight)
             };
             horseBtn.Click += HorseBtn_Click;
+
+            // Update button: small, bottom right
+            var updateBtn = new Button {
+                Text = "Check for Updates",
+                Size = new System.Drawing.Size(120, 28),
+                Location = new System.Drawing.Point(ClientSize.Width - 120 - 16, ClientSize.Height - 28 - 16),
+                Anchor = AnchorStyles.Bottom | AnchorStyles.Right
+            };
+            updateBtn.Click += UpdateBtn_Click;
 
             Controls.Add(addBtn);
             Controls.Add(remBtn);
             Controls.Add(horseBtn);
+            Controls.Add(updateBtn);
         }
 
         private void SetBackgroundImage()
@@ -72,7 +89,7 @@ namespace FileTool
                 try
                 {
                     BackgroundImage = Image.FromFile(imagePath);
-                    BackgroundImageLayout = ImageLayout.Stretch; // or Tile, Center, Zoom, etc.
+                    BackgroundImageLayout = ImageLayout.Stretch; // Fills the form, no borders
                 }
                 catch
                 {
