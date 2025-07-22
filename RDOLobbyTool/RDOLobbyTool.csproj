@@ -1,20 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <!-- WinExe = no console by default -->
     <OutputType>WinExe</OutputType>
-    <!-- use the "-windows" suffix so WinForms is allowed -->
     <TargetFramework>net8.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <!-- enable WinForms for your two‑button UI -->
     <UseWindowsForms>true</UseWindowsForms>
-    <ApplicationIcon>bin\Debug\RDOL\images\RDOLobby.ico</ApplicationIcon>
+    <ApplicationIcon>images\RDOLobby.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- include your startup.meta template and copy it out on build -->
-    <Content Include="bin\Debug\RDOL\images\RDOLobby.ico" />
+    <Content Include="images\RDOLobby.ico" />
+    <Content Include="version.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Templates\startup.meta">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="images\**\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="sound\**\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

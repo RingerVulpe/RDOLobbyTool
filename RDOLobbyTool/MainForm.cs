@@ -12,6 +12,7 @@ namespace FileTool
     {
         private readonly string _targetFolder;
         private const string FileName = "startup.meta";
+        private const string VersionFileName = "version.txt";
 
         public MainForm(string targetFolder)
         {
@@ -138,14 +139,12 @@ namespace FileTool
 
         private async void CheckForUpdates()
         {
-            // Replace with your actual version file URL
-            string versionUrl = "https://yourserver.com/latest-version.txt";
             string? latestVersion = null;
 
             try
             {
                 using var http = new HttpClient();
-                latestVersion = await http.GetStringAsync(versionUrl);
+                latestVersion = await http.GetStringAsync(VersionFileName);
                 latestVersion = latestVersion.Trim();
             }
             catch
