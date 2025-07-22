@@ -6,19 +6,39 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>images\RDOLobby.ico</ApplicationIcon>
+    <AssemblyName>RDOL</AssemblyName>
+    <OutputPath>bin\$(Configuration)\RDOL\</OutputPath>
+    <IntermediateOutputPath>obj\$(Configuration)\RDOL\</IntermediateOutputPath>
+    <PublishDir>bin\$(Configuration)\RDOL\</PublishDir>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="images\RDOLobby.ico" />
+    <!-- Your icon -->
+    <Content Include="images\RDOLobby.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+
+    <!-- Updater script -->
+    <Content Include="update.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+
+    <!-- Version file -->
     <Content Include="version.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+
+    <!-- Template -->
     <Content Include="Templates\startup.meta">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+
+    <!-- All other images -->
     <Content Include="images\**\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+
+    <!-- Sounds -->
     <Content Include="sound\**\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
